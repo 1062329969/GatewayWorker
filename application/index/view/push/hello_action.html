@@ -4,8 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <script src="https://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
 </head>
 <body>
+<input type="text" value="" id="text">
+<input type="button" value="send" onclick="send(this)">
+<div id="message"></div>
 <script type="text/javascript">
     /**
      * 与GatewayWorker建立websocket连接，域名和端口改为你实际的域名端口，
@@ -14,14 +18,35 @@
      * $gateway = new Gateway(websocket://0.0.0.0:7272);
      */
     ws = new WebSocket("ws://"+document.domain+":8282");
+    console.log(ws);
     // 服务端主动推送消息时会触发这里的onmessage
     ws.onmessage = function(e){
-        // json数据转换成js对象
-        var bindUrl = "{:url('push/BindClientId')}";
-        var data = e.data;
 
-        var type = data.type || '';
-        switch(type){
+        var received_msg = e.data;
+        console.log(received_msg);
+        var jmsg = eval("(" + received_msg + ")");
+        if (jmsg.from_uid > 0) {
+            var t_msg = '<li>' + jmsg.from_uid + ' 说：' + jmsg.msg + '</li>';
+
+            $("#message").append(t_msg);
+        }
+        if (jmsg.client_id.length != 0) {
+            $.post("{:url('push/BindClientId')}", {client_id: jmsg.client_id}, function (data) {
+
+            });
+        }
+
+
+
+
+        // json数据转换成js对象
+//        var bindUrl = "{:url('push/BindClientId')}";
+//        var data = e.data;
+//        $.post(bindUrl, {client_id: data}, function(data){
+//            console.log(data);
+//        }, 'json');
+//        var type = data.type || '';
+        /*switch(type){
                 // Events.php中返回的init类型的消息，将client_id发给后台进行uid绑定
             case 'init':
                 // 利用jquery发起ajax请求，将client_id发给后端进行uid绑定
@@ -32,8 +57,15 @@
                 // 当mvc框架调用GatewayClient发消息时直接alert出来
             default :
                 console.log(e.data);
-        }
+        }*/
     };
+    function send(_self) {
+        var msg = $('#text').val();
+        $.post("{:url('push/AjaxSendMessage')}", {message: msg}, function (data) {
+            console.log(data);
+        });
+
+    }
 </script>
 </body>
 </html>

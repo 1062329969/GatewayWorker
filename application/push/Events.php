@@ -28,6 +28,12 @@ use \GatewayWorker\Lib\Gateway;
  */
 class Events
 {
+
+    public static function onWorkerStart($businessWorker)
+    {
+        echo "WorkerStart\n";
+    }
+
     /**
      * 当客户端连接时触发
      * 如果业务不需此回调可以删除onConnect
@@ -36,10 +42,10 @@ class Events
      */
     public static function onConnect($client_id)
     {
-        // 向当前client_id发送数据 
-        Gateway::sendToClient($client_id, "Hello $client_id\r\n");
-        // 向所有人发送
-        Gateway::sendToAll("$client_id login\r\n");
+        // 向当前client_id发送数据
+        Gateway::sendToClient($client_id,json_encode(array('client_id'=>$client_id)));
+//        // 向所有人发送
+//        Gateway::sendToAll("$client_id login\r\n");
     }
     
    /**
@@ -49,7 +55,7 @@ class Events
     */
    public static function onMessage($client_id, $message)
    {
-        // 向所有人发送 
+        // 向所有人发送
         Gateway::sendToAll("$client_id said $message\r\n");
    }
    

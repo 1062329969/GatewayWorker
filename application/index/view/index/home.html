@@ -19,7 +19,7 @@
         // json数据转换成js对象
         var bindUrl = "{:url('push/BindClientId')}";
         var data = e.data;
-
+        console.log(e);
         var type = data.type || '';
         switch(type){
                 // Events.php中返回的init类型的消息，将client_id发给后台进行uid绑定
